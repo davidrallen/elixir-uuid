@@ -34,4 +34,9 @@ defmodule UUIDBench do
     UUID.uuid5(:dns, "test.example.com")
   end
 
+  bench "uuid7" do
+    UUID.uuid7
+    :ok
+  end
+
 end

@@ -13,6 +13,7 @@ defmodule UUID do
   @uuid_v3 3 # UUID v3 identifier.
   @uuid_v4 4 # UUID v4 identifier.
   @uuid_v5 5 # UUID v5 identifier.
+  @uuid_v7 7 # UUID v7 identifier.
 
   @urn "urn:uuid:" # UUID URN prefix.
 
@@ -450,6 +451,44 @@ defmodule UUID do
     "Invalid argument; Expected: :dns|:url|:oid|:x500|:nil OR String, String"
   end
 
+
+  @doc """
+  Generate a new UUID v7. This version uses a combination of one or more of:
+  unix epoch, random bytes.
+
+  ## Examples
+
+  ```elixir
+  iex> UUID.uuid7()
+  "018854e5-5e27-72df-8aa8-755145639df6"
+
+  iex> UUID.uuid7(:default)
+  "018854e5-5e27-72df-8aa8-755145639df6"
+
+  iex> UUID.uuid7(:hex)
+  "018854e747a57f0fa1e4c0329ec7d677"
+
+  iex> UUID.uuid7(:urn)
+  "urn:uuid:018854e7-acee-7973-9b94-58cd6c4b3ff9"
+
+  iex> UUID.uuid7(:raw)
+  <<1, 136, 84, 232, 54, 185, 113, 31, 172, 251, 52, 2, 20, 241, 177, 221>>
+
+  iex> UUID.uuid7(:slug)
+  "AYhU6Hx-d2-cLiaO4Jw5PA"
+  ```
+
+  """
+  def uuid7(format \\ :default) do
+    uuid7(uuid7_time(), format)
+  end
+
+  def uuid7(epoch, format) do
+    <<_::52, u1::12, _::2, u2::62>> = :crypto.strong_rand_bytes(16)
+    <<epoch::48, @uuid_v7::4, u1::12, @variant10::2, u2::62>>
+      |> uuid_to_string(format)
+  end
+
   #
   # Internal utility functions.
   #
@@ -584,6 +623,12 @@ defmodule UUID do
     <<rnd_hi::7, 1::1, rnd_low::40>>
   end
 
+  #Get standard Unix epoch in milliseconds
+  defp uuid7_time() do
+    System.os_time(:millisecond)
+  end
+
+
   # Generate a hash of the given data.
   defp namebased_uuid(:md5, data) do
     md5 = :crypto.hash(:md5, data)
@@ -618,7 +663,7 @@ defmodule UUID do
   defp variant(_) do
     raise ArgumentError, message: "Invalid argument; Not valid variant bits"
   end
-  
+
   defp hex_str_to_binary(<< a1, a2, a3, a4, a5, a6, a7, a8,
                             b1, b2, b3, b4,
                             c1, c2, c3, c4,
@@ -633,7 +678,7 @@ defmodule UUID do
         d(e5)::4, d(e6)::4, d(e7)::4, d(e8)::4,
         d(e9)::4, d(e10)::4, d(e11)::4, d(e12)::4 >>
   end
-  
+
   @compile {:inline, d: 1}
 
   defp d(?0), do: 0
