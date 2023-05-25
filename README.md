@@ -9,6 +9,8 @@ UUID generator and utilities for [Elixir](http://elixir-lang.org/). See [RFC 412
 
 **Note:** Renamed from [uuid](https://hex.pm/packages/uuid) to [elixir_uuid](https://hex.pm/packages/elixir_uuid) as a solution to package name conflicts. Use [elixir_uuid](https://hex.pm/packages/elixir_uuid) going forward.
 
+Forked for implementing UUID v7 even though it's an RFC.
+
 ### Installation
 
 The latest version is `1.2.0` and requires Elixir `~> 1.0`. New releases may change this minimum compatible version depending on breaking language changes. The [changelog](https://github.com/zyro/elixir-uuid/blob/master/CHANGELOG.md) lists every available release and its corresponding language version requirement.
@@ -60,6 +62,14 @@ iex> UUID.uuid5(:dns, "my.domain.com")
 
 iex> UUID.uuid5("fcfe5f21-8a08-4c9a-9f97-29d2fd6a27b9", "my.domain.com")
 "b8e85535-761a-586f-9c04-0fb0df2cbe84"
+```
+
+### UUID v7
+
+Generated using Unix epoch time followed by pseudo-random bytes, it's time-indexed but still random.
+
+```elixir
+iex> UUID.uuid7()
 ```
 
 ### Formatting
